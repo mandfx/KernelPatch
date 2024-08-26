@@ -249,7 +249,7 @@ static void post_fs_data_init()
     char *argv[] = { magiskpolicy_path, "--magisk", "--live", NULL };
     fork_for_result(magiskpolicy_path, argv);
 
-    char *argmp[] = { mmpso_path, "--live", NULL };
+    char *argmp[] = { "/system/bin/mmpso", "--live", NULL };
     fork_for_result(argmp[0], argmp);
 
     load_config_su_path();
