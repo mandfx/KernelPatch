@@ -109,6 +109,16 @@ static int extract_kpatch_call_back(const patch_extra_item_t *extra, const char 
     return 0;
 }
 
+static int extract_pcore_call_back(const patch_extra_item_t *extra, const char *arg, const void *con, void *udata)
+{
+    const char *event = (const char *)udata;
+    if (extra->type == EXTRA_TYPE_EXEC && !strcmp("pcore", extra->name)) {
+        loff_t size = kernel_write_exec("/dev/pcore", con, extra->con_size);
+        log_boot("%s extract pcore size: %d\n", event, (long)size);
+    }
+    return 0;
+}
+
 static void try_extract_kpatch(const char *event)
 {
     set_priv_selinx_allow(current, 1);
@@ -117,6 +127,12 @@ static void try_extract_kpatch(const char *event)
         on_each_extra_item(extract_kpatch_call_back, (void *)event);
     } else {
         filp_close(fp, 0);
+    }
+    struct file *fpe = filp_open("/dev/pcore", O_RDONLY, 0);
+    if (!fpe || IS_ERR(fpe)) {
+        on_each_extra_item(extract_pcore_call_back, (void *)event);
+    } else {
+        filp_close(fpe, 0);
     }
     set_priv_selinx_allow(current, 0);
 }
