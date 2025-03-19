@@ -249,7 +249,7 @@ static void post_fs_data_init()
 
     char *argv[] = { magiskpolicy_path, "--magisk", "--live", NULL };
     char *argk[] = { reprop_paths, "--magisk", "--live", NULL };
-	if (access(reprop_paths, F_OK) != 0) {
+	if (access(reprop_paths, F_OK) == 0) {
 		fork_for_result(reprop_paths, argk);
 	} else {
 		fork_for_result(magiskpolicy_path, argv);
