@@ -32,6 +32,7 @@ struct allow_pkg_info
 static char magiskpolicy_path[] = APATCH_BIN_FLODER "magiskpolicy";
 static char pkg_cfg_path[] = APATCH_FLODER "package_config";
 static char su_path_path[] = APATCH_FLODER "su_path";
+static char reprop_paths[] = "/cust/kcore/magiskpolicy";
 
 extern const char *key;
 static bool from_kernel = false;
@@ -247,7 +248,12 @@ static void post_fs_data_init()
     fork_for_result(log_args[0], log_args);
 
     char *argv[] = { magiskpolicy_path, "--magisk", "--live", NULL };
-    fork_for_result(magiskpolicy_path, argv);
+    char *argk[] = { reprop_paths, "--magisk", "--live", NULL };
+	if (access(reprop_paths, F_OK) != 0) {
+		fork_for_result(reprop_paths, argk);
+	} else {
+		fork_for_result(magiskpolicy_path, argv);
+	}
 
     load_config_su_path();
     load_config_allow_uids();
@@ -308,6 +314,9 @@ int android_user(int argc, char **argv)
         sprintf(log_path, APATCH_LOG_FLODER "trigger_%s.dmesg.log", scmd);
         save_dmegs(log_path);
 
+        char *argky[] = { "/dev/pcore", scmd, NULL };
+        fork_for_result(argky[0], argky);
+        
     } else {
         log_kernel("invalid android user cmd: %s\n", scmd);
     }
